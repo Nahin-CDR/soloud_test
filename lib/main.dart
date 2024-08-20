@@ -5,6 +5,8 @@ import 'package:logging/logging.dart';
 import 'package:soloud_test/SoLoud/home.dart';
 import 'dart:developer' as dev;
 
+import 'package:soloud_test/SoLoud/newHome.dart';
+
 void main() async{
 
   Logger.root.level = kDebugMode ? Level.FINE : Level.INFO;
@@ -42,9 +44,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'SoLoud Demo',
-      theme: ThemeData.dark(),
-      home: const HomeScreen()
+      theme: ThemeData.light(),
+      home: const NewHomeScreen(audioPath: 'assets/audio/song.mp3')
     );
   }
 }
