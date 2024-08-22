@@ -4,10 +4,9 @@ import 'package:flutter_soloud/flutter_soloud.dart';
 import 'package:logging/logging.dart';
 import 'package:soloud_test/SoLoud/home.dart';
 import 'dart:developer' as dev;
-
 import 'package:soloud_test/SoLoud/newHome.dart';
+import 'package:soloud_test/playFromUrl.dart';
 
-import 'voiceRecord.dart';
 void main() async{
 
   Logger.root.level = kDebugMode ? Level.FINE : Level.INFO;
@@ -48,7 +47,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'SoLoud Demo',
       theme: ThemeData.light(),
-      home: const  NewHomeScreen(audioPath: 'assets/audio/song.mp3')
+      home: const PlayFromURL(url: 'https://be-music.s3.us-west-1.amazonaws.com/af768761-3284-4688-b609-84c91465d70d/karioki60ac8084-96ab-44ea-9d87-0a3d058c2728.mp3')
     );
   }
 }
