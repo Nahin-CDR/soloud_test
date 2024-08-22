@@ -29,7 +29,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
   }
 
   Future<void> _initializeSound() async {
-    sound = await SoLoud.instance.loadAsset(widget.audioPath);
+    sound = await SoLoud.instance.loadFile(widget.audioPath, mode: LoadMode.memory);
     if (sound != null) {
       soundLength = SoLoud.instance.getLength(sound!);
       handle = await SoLoud.instance.play(sound!, paused: true); // Play initially paused
