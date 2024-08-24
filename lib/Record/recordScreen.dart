@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -87,6 +88,8 @@ class _RecordScreenState extends State<RecordScreen> {
 
   void _stopTimer() {
     _timer?.cancel();
+
+
   }
 
   @override
@@ -95,6 +98,27 @@ class _RecordScreenState extends State<RecordScreen> {
     super.dispose();
   }
 
+
+  Future<void> deleteRecordedFile() async {
+    if (recordedAudioPath.isNotEmpty) {
+      final file = File(recordedAudioPath);
+      try {
+        if (await file.exists()) {
+          await file.delete();
+          print("File deleted: $recordedAudioPath");
+          setState(() {
+
+            //recordedAudioPath = ""; // Clear the path after deletion
+          });
+          print("File deleted: $recordedAudioPath");
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print("Error deleting file: $e");
+        }
+      }
+    }
+  }
   @override
   Widget build(BuildContext context) {
     String _formattedTime = '${_elapsedTime.inMinutes}:${(_elapsedTime.inSeconds % 60).toString().padLeft(2, '0')}';
@@ -130,10 +154,24 @@ class _RecordScreenState extends State<RecordScreen> {
                 child:const Text("Stop Recording")
             ),
 
+            const SizedBox(height: 100),
+
+            ElevatedButton(
+                onPressed: (){
+                  deleteRecordedFile();
+                  // Clear the path after deletion
+                  //recordedAudioPath = "";  // Clear the path after deletion
+                },
+                child: Text("Delete")
+            ),
+
             const SizedBox(height:100),
 
             ElevatedButton(
                 onPressed: (){
+                  setState(() {
+                    _elapsedTime = Duration.zero;
+                  });
                   // Navigate to next screen
                   Navigator.push(
                       context,

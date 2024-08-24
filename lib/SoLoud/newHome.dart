@@ -32,6 +32,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
     _initializeSound();
   }
 
+  // eta just ek bar e call hobe
   Future<void> _initializeSound() async {
     sound = await SoLoud.instance.loadFile(widget.audioPath, mode: LoadMode.memory);
     if (sound != null) {
