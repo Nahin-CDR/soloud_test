@@ -1,10 +1,8 @@
 import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
-
 import '../SoLoud/newHome.dart';
 
 class RecordScreen extends StatefulWidget {
@@ -60,7 +58,7 @@ class _RecordScreenState extends State<RecordScreen> {
      }
    }
 
-
+   Duration timer = const Duration(minutes: 0,seconds: 0);
 
 
 
@@ -74,8 +72,32 @@ class _RecordScreenState extends State<RecordScreen> {
     super.initState();
   }
 
+  Timer? _timer;
+  Duration _elapsedTime = Duration.zero;
+
+
+
+  void _startTimer() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        _elapsedTime = Duration(seconds: _elapsedTime.inSeconds + 1);
+      });
+    });
+  }
+
+  void _stopTimer() {
+    _timer?.cancel();
+  }
+
+  @override
+  void dispose() {
+    _stopTimer(); // Cancel the timer when the widget is disposed
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    String _formattedTime = '${_elapsedTime.inMinutes}:${(_elapsedTime.inSeconds % 60).toString().padLeft(2, '0')}';
     return Scaffold(
       appBar: AppBar(
         title: const Text('Record Screen'),
@@ -83,9 +105,17 @@ class _RecordScreenState extends State<RecordScreen> {
       body: Center(
         child: Column(
           children: [
+            Text(
+              _formattedTime,
+              style: const TextStyle(
+                fontSize: 48,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             ElevatedButton(
                 onPressed: (){
                   startRecording();
+                  _startTimer();
                 },
                 child:const Text("Start Recording")
             ),
@@ -95,6 +125,7 @@ class _RecordScreenState extends State<RecordScreen> {
             ElevatedButton(
                 onPressed: (){
                   stopRecording();
+                  _stopTimer();
                 },
                 child:const Text("Stop Recording")
             ),

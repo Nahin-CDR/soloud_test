@@ -3,7 +3,6 @@ import 'package:flutter_soloud/flutter_soloud.dart';
 import 'dart:async';
 import 'package:logging/logging.dart';
 
-
 class NewHomeScreen extends StatefulWidget {
   const NewHomeScreen({super.key, required this.audioPath});
 
@@ -21,6 +20,11 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
   final ValueNotifier<bool> isPlaying = ValueNotifier(false);
   final ValueNotifier<Duration> soundPosition = ValueNotifier(Duration.zero);
   late Duration soundLength;
+  StreamSubscription<StreamSoundEvent>? streamSubscription;
+
+
+
+
 
   @override
   void initState() {
@@ -32,10 +36,21 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
     sound = await SoLoud.instance.loadFile(widget.audioPath, mode: LoadMode.memory);
     if (sound != null) {
       soundLength = SoLoud.instance.getLength(sound!);
-      handle = await SoLoud.instance.play(sound!, paused: true); // Play initially paused
-      _startTimer();
+      _prepareAndPlay();
     }
     setState(() {});
+  }
+
+  Future<void> _prepareAndPlay() async {
+    handle = await SoLoud.instance.play(sound!, paused: true); // Play initially paused
+
+    streamSubscription = sound!.soundEvents.listen((eventResult) {
+      if(eventResult.event == SoundEventType.handleIsNoMoreValid){
+        _resetPlayer();
+      }
+    });
+
+    _startTimer();
   }
 
   void _startTimer() {
@@ -43,6 +58,9 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
     timer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
       if (handle != null) {
         soundPosition.value = SoLoud.instance.getPosition(handle!);
+        if (soundPosition.value+ Duration(milliseconds: 200) >= soundLength) {
+          _resetPlayer();
+        }
       }
     });
   }
@@ -51,7 +69,17 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
     if (handle != null) {
       SoLoud.instance.pauseSwitch(handle!);
       isPlaying.value = !SoLoud.instance.getPause(handle!);
+      setState(() {});
     }
+  }
+
+  void _resetPlayer() {
+    SoLoud.instance.stop(handle!);  // Stop the current playback
+    soundPosition.value = Duration.zero;
+    isPlaying.value = false;
+    _prepareAndPlay(); // Prepare for the next play cycle
+    setState(() {});
+    print("reset player called");// Ensure UI reflects the reset state
   }
 
   @override
@@ -93,9 +121,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                 const SizedBox(width: 16),
                 IconButton(
                   onPressed: () async {
-                    SoLoud.instance.stop(handle!);
-                    soundPosition.value = Duration.zero;
-                    isPlaying.value = false;
+                    _resetPlayer();
                   },
                   icon: const Icon(Icons.stop_circle_outlined, size: 48),
                 ),
@@ -131,4 +157,3 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
     );
   }
 }
-
